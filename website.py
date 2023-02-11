@@ -230,7 +230,7 @@ class SaveConvention(object):
             os.chdir(origin)
             
     def saveCsv(self, data, fileName:str, transpose:bool=False):
-        with self.changeDir(self.path):
+        with self.changeDir(self.path1):
             if transpose: 
                 dataFrame = pd.DataFrame(data).T
                 dataFrame.to_csv(f'{fileName}.csv')
@@ -239,7 +239,7 @@ class SaveConvention(object):
                 dataFrame.to_csv(f'{fileName}.csv')
             
     def saveText(self, data, changeInData:bool=False):
-        with self.changeDir(self.path):
+        with self.changeDir(self.path1):
             if changeInData:
                 with open('data.txt', 'r') as textRead:
                     with open('data.txt', 'w') as textWrite:
