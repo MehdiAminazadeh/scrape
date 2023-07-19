@@ -1,0 +1,15 @@
+,united-states,china,brazil,euro-area,united-kingdom,germany,italy
+indicators,United States,China,Brazil,Euro Area,United Kingdom,Germany,Italy
+currency,DXY,USDCNY,USDBRL,EURUSD,GBPUSD,,
+stock-market,US30,SHANGHAI,IBOVESPA,,GB100,DE40,IT40
+government-bond-yield,United States,China,Brazil,,United Kingdom,Germany,Italy
+gdp,25463,17963,1920,14041,3071,4072,2010
+gdp-growth-annual,1.80,4.50,4.00,1.00,0.20,-0.50,1.90
+gdp-growth,2.00,2.20,1.90,-0.10,0.10,-0.30,0.60
+interest-rate,5.25,3.55,13.75,4.00,5.00,4.00,4.00
+inflation-cpi,4.00,0.20,3.94,5.50,8.70,6.40,6.40
+unemployment-rate,3.60,5.20,8.30,6.50,3.80,5.70,7.60
+government-budget,-5.80,-7.40,-4.60,-3.60,-5.50,-2.60,-8.00
+government-debt-to-gdp,129.00,76.90,72.87,91.50,100.60,66.30,144.70
+current-account-to-gdp,-3.70,2.20,-2.92,-1.00,-5.60,4.20,-1.30
+population,334.23,1411.75,214.83,342.89,67.53,84.40,58.98
