@@ -13,12 +13,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.action_chains import ActionChains
 from requests.exceptions import ConnectionError
 from pathlib import Path
-<<<<<<< HEAD
-
-=======
 import pandas as pd
->>>>>>> 7e060e1c1a11b014f851f7f542e461746d36ed98
-
 from selectors import selector
 
 logging.basicConfig(filename='log.log', level=logging.DEBUG)
@@ -128,21 +123,7 @@ class Website:
         
         try:
             for link in links:
-<<<<<<< HEAD
-                    self.selenium.find_page(link)
-                    world = self.selenium.find_elements(
-                        By.XPATH, selector.LI_RIBBON
-                        )[0]
-                    world.click()
-                    ribbon = self.selenium.find_elements(By.XPATH, selector.TH_RIBBON)
-                    values = [value.text for value
-                            in self.selenium.find_elements(
-                                By.XPATH, selector.TR_VALUE
-                            )]
-                    if len(ribbon) > 5:
-                        continue
-                        # self.markets()
-=======
+
                 self.selenium.find_page(link)
                 world = self.selenium.find_elements(
                     By.XPATH, selector.LI_RIBBON
@@ -153,38 +134,32 @@ class Website:
                         in self.selenium.find_elements(
                             By.XPATH, selector.TR_VALUE
                         )]
-                
-               if len(ribbon) > 5:
+                if len(ribbon) > 5:
+                    continue
+
+                for value in values:
+                    lst = value.split()
+                    if len(lst) < 2:
                         continue
->>>>>>> 7e060e1c1a11b014f851f7f542e461746d36ed98
-                    for value in values:
-                        lst = value.split()
-                        if len(lst) < 2:
-                            continue
-                        else:
-                            while len(lst) > 5:
-                                lst[0] += ' ' + lst[1]
-                                lst.pop(1)
-                                
-                        title = self.selenium.find_element(
-                        By.XPATH, selector.TITLE
-                        ).text.replace(' | World', '')
-                        
-                        foundElements[lst[0]].update(
-                        {
-                            title:lst[1],
-                            # ribbon[4].text + f'_{title}': lst[4]
-                        }
-                        )
-                    self.saving.save_csv(foundElements, 'indicators', transpose=True)
+                    else:
+                        while len(lst) > 5:
+                            lst[0] += ' ' + lst[1]
+                            lst.pop(1)
+                            
+                    title = self.selenium.find_element(
+                    By.XPATH, selector.TITLE
+                    ).text.replace(' | World', '')
+                    
+                    foundElements[lst[0]].update(
+                    {
+                        title:lst[1],
+                        # ribbon[4].text + f'_{title}': lst[4]
+                    }
+                    )
+                self.saving.save_csv(foundElements, 'indicators', transpose=True)
         except IndexError:
             pass
-<<<<<<< HEAD
-            # self.saving.save_csv(foundElements, 'indicators', transpose=True)
-            
-=======
-    
->>>>>>> 7e060e1c1a11b014f851f7f542e461746d36ed98
+
     def markets(self):
         self.selenium.find_page(self.mainUrl)
         links = [link.get_attribute('href')
@@ -200,61 +175,31 @@ class Website:
         for head, body in zip(thead, tbody):
             head_split = re.split('\n', head.text)
             body_split = re.split('\n', body.text)
-<<<<<<< HEAD
-            print(body_split)
-            
+
+            # print(body_split)
+        
     def execute(self):
         self.links_overview()
         self.top_news(text=True)
         self.extract_allnews()
         self.main_indicators()
-=======
-            # print(body_split)
-        
-    def execute(self):
-        self.links_overview()
-        self.topNews(text=True)
-        self.extractAllNews()
-        self.mainIndicators()
->>>>>>> 7e060e1c1a11b014f851f7f542e461746d36ed98
         self.markets()
         
 class Selenium(webdriver.Chrome):
     """Initiating chrome driver"""
-<<<<<<< HEAD
-    def __init__(self, 
-                 driver= selector.DRIVER,
-                 off = False
-                 ) -> None:
-        option = webdriver.ChromeOptions()
-        option.add_experimental_option('excludeSwitches', ['enable-logging'])
-        super(Selenium, self).__init__(options=option)
-        self.off = off
-=======
-    def __init__(self, driver= selector.DRIVER) -> None:
+    
+    def __init__(self, driver= selector.DRIVER,) -> None:
         super(Selenium, self).__init__()
->>>>>>> 7e060e1c1a11b014f851f7f542e461746d36ed98
         self.driver = driver
         self.implicitly_wait(20)
         self.maximize_window()
         self.action = ActionChains(driver)
     
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        if self.off:
-            self.quit()
-        
-<<<<<<< HEAD
+    
     def find_page(self, givenUrl:str) -> None:
-        try:
-            self.get(givenUrl)
-            self.get_network_conditions
-        except Exception as e:
-            print('---------', e)
-=======
-    def find_page(self, givenUrl):
         self.get(givenUrl)
         self.get_network_conditions
->>>>>>> 7e060e1c1a11b014f851f7f542e461746d36ed98
+        
         
     def scroll(self, limit:int, pause:int=2) -> None:
         scroll_count = 0
@@ -287,11 +232,7 @@ class SaveConvention(object):
         finally:
             os.chdir(origin)
             
-<<<<<<< HEAD
-    def save_csv(self, data, fileName:str='', transpose:bool=False) -> None:
-=======
-    def saveCsv(self, data, fileName:str, transpose:bool=False):
->>>>>>> 7e060e1c1a11b014f851f7f542e461746d36ed98
+    def save_csv(self, data, fileName:str, transpose:bool=False):
         with self.changeDir(self.path1):
             if transpose: 
                 dataFrame = pd.DataFrame(data).T
@@ -300,11 +241,8 @@ class SaveConvention(object):
                 dataFrame = pd.DataFrame(data)
                 dataFrame.to_csv(f'{fileName}.csv')
             
-<<<<<<< HEAD
+
     def save_text(self, data, changeInData:bool=False)-> None:
-=======
-    def saveText(self, data, changeInData:bool=False):
->>>>>>> 7e060e1c1a11b014f851f7f542e461746d36ed98
         with self.changeDir(self.path1):
             if changeInData:
                 with open('data.txt', 'r') as textRead:
@@ -316,11 +254,7 @@ class SaveConvention(object):
                 with open('data.txt', 'w') as text:
                     string = '\n'.join(data)
                     text.write(string)
-<<<<<<< HEAD
-inst1 = Website()
-inst1.execute()
-=======
+
 if __name__ == '__main__':
     instance = Website()
     instance.execute()
->>>>>>> 7e060e1c1a11b014f851f7f542e461746d36ed98
