@@ -13,12 +13,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.action_chains import ActionChains
 from requests.exceptions import ConnectionError
 from pathlib import Path
-<<<<<<< HEAD
-
-=======
 import pandas as pd
->>>>>>> 7e060e1c1a11b014f851f7f542e461746d36ed98
-
 from selectors import selector
 
 logging.basicConfig(filename='log.log', level=logging.DEBUG)
@@ -81,7 +76,7 @@ class Website:
                 newsDict[head.text].update({
                     'News': new.text.replace('\n', ',')
                 })
-        if 'News.json'.lower() in os.listdir(self.saving.path1):
+        if 'News.json' in os.listdir(self.saving.path1):
             print('Already available')
             
         else:
@@ -104,12 +99,13 @@ class Website:
             else:
                 topNews.append(string)
         topNews.insert(0, ctime())
+        
         if text:
             try:
                 with open('data.txt', 'r') as text:
                     lineOne = text.readlines()
                     if lineOne[1] == topNews[1]:
-                        print('Top News are Up to dated!')
+                        print('Top News are Updated!')
                     else:
                         self.saving.save_text(topNews,changeInData=True)
             except FileNotFoundError:
@@ -128,7 +124,7 @@ class Website:
         
         try:
             for link in links:
-<<<<<<< HEAD
+
                     self.selenium.find_page(link)
                     world = self.selenium.find_elements(
                         By.XPATH, selector.LI_RIBBON
@@ -142,7 +138,7 @@ class Website:
                     if len(ribbon) > 5:
                         continue
                         # self.markets()
-=======
+
                 self.selenium.find_page(link)
                 world = self.selenium.find_elements(
                     By.XPATH, selector.LI_RIBBON
@@ -156,7 +152,7 @@ class Website:
                 
                if len(ribbon) > 5:
                         continue
->>>>>>> 7e060e1c1a11b014f851f7f542e461746d36ed98
+
                     for value in values:
                         lst = value.split()
                         if len(lst) < 2:
@@ -179,16 +175,14 @@ class Website:
                     self.saving.save_csv(foundElements, 'indicators', transpose=True)
         except IndexError:
             pass
-<<<<<<< HEAD
+
             # self.saving.save_csv(foundElements, 'indicators', transpose=True)
-            
-=======
-    
->>>>>>> 7e060e1c1a11b014f851f7f542e461746d36ed98
+
     def markets(self):
         self.selenium.find_page(self.mainUrl)
         links = [link.get_attribute('href')
                  for link in self.selenium.find_elements(By.XPATH, selector.MARKET)] 
+        
         part_one = links[:5]
         part_two = links[5:]
         dict_ = {}
@@ -200,7 +194,7 @@ class Website:
         for head, body in zip(thead, tbody):
             head_split = re.split('\n', head.text)
             body_split = re.split('\n', body.text)
-<<<<<<< HEAD
+
             print(body_split)
             
     def execute(self):
@@ -208,20 +202,11 @@ class Website:
         self.top_news(text=True)
         self.extract_allnews()
         self.main_indicators()
-=======
-            # print(body_split)
-        
-    def execute(self):
-        self.links_overview()
-        self.topNews(text=True)
-        self.extractAllNews()
-        self.mainIndicators()
->>>>>>> 7e060e1c1a11b014f851f7f542e461746d36ed98
-        self.markets()
+
         
 class Selenium(webdriver.Chrome):
     """Initiating chrome driver"""
-<<<<<<< HEAD
+
     def __init__(self, 
                  driver= selector.DRIVER,
                  off = False
@@ -230,10 +215,6 @@ class Selenium(webdriver.Chrome):
         option.add_experimental_option('excludeSwitches', ['enable-logging'])
         super(Selenium, self).__init__(options=option)
         self.off = off
-=======
-    def __init__(self, driver= selector.DRIVER) -> None:
-        super(Selenium, self).__init__()
->>>>>>> 7e060e1c1a11b014f851f7f542e461746d36ed98
         self.driver = driver
         self.implicitly_wait(20)
         self.maximize_window()
@@ -243,19 +224,14 @@ class Selenium(webdriver.Chrome):
         if self.off:
             self.quit()
         
-<<<<<<< HEAD
     def find_page(self, givenUrl:str) -> None:
         try:
             self.get(givenUrl)
             self.get_network_conditions
         except Exception as e:
             print('---------', e)
-=======
-    def find_page(self, givenUrl):
-        self.get(givenUrl)
-        self.get_network_conditions
->>>>>>> 7e060e1c1a11b014f851f7f542e461746d36ed98
-        
+
+
     def scroll(self, limit:int, pause:int=2) -> None:
         scroll_count = 0
         prev_height = self.execute_script(selector.PAGE_HEIGHT)
@@ -286,12 +262,9 @@ class SaveConvention(object):
             yield
         finally:
             os.chdir(origin)
-            
-<<<<<<< HEAD
-    def save_csv(self, data, fileName:str='', transpose:bool=False) -> None:
-=======
+
+    
     def saveCsv(self, data, fileName:str, transpose:bool=False):
->>>>>>> 7e060e1c1a11b014f851f7f542e461746d36ed98
         with self.changeDir(self.path1):
             if transpose: 
                 dataFrame = pd.DataFrame(data).T
@@ -299,12 +272,10 @@ class SaveConvention(object):
             else:
                 dataFrame = pd.DataFrame(data)
                 dataFrame.to_csv(f'{fileName}.csv')
-            
-<<<<<<< HEAD
-    def save_text(self, data, changeInData:bool=False)-> None:
-=======
+                
+
     def saveText(self, data, changeInData:bool=False):
->>>>>>> 7e060e1c1a11b014f851f7f542e461746d36ed98
+
         with self.changeDir(self.path1):
             if changeInData:
                 with open('data.txt', 'r') as textRead:
@@ -316,11 +287,8 @@ class SaveConvention(object):
                 with open('data.txt', 'w') as text:
                     string = '\n'.join(data)
                     text.write(string)
-<<<<<<< HEAD
-inst1 = Website()
-inst1.execute()
-=======
+
+
 if __name__ == '__main__':
     instance = Website()
     instance.execute()
->>>>>>> 7e060e1c1a11b014f851f7f542e461746d36ed98
