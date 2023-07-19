@@ -76,7 +76,7 @@ class Website:
                 newsDict[head.text].update({
                     'News': new.text.replace('\n', ',')
                 })
-        if 'News.json'.lower() in os.listdir(self.saving.path1):
+        if 'News.json' in os.listdir(self.saving.path1):
             print('Already available')
             
         else:
@@ -99,12 +99,13 @@ class Website:
             else:
                 topNews.append(string)
         topNews.insert(0, ctime())
+        
         if text:
             try:
                 with open('data.txt', 'r') as text:
                     lineOne = text.readlines()
                     if lineOne[1] == topNews[1]:
-                        print('Top News are Up to dated!')
+                        print('Top News are Updated!')
                     else:
                         self.saving.save_text(topNews,changeInData=True)
             except FileNotFoundError:
@@ -141,6 +142,7 @@ class Website:
                     lst = value.split()
                     if len(lst) < 2:
                         continue
+
                     else:
                         while len(lst) > 5:
                             lst[0] += ' ' + lst[1]
@@ -160,10 +162,12 @@ class Website:
         except IndexError:
             pass
 
+
     def markets(self):
         self.selenium.find_page(self.mainUrl)
         links = [link.get_attribute('href')
                  for link in self.selenium.find_elements(By.XPATH, selector.MARKET)] 
+        
         part_one = links[:5]
         part_two = links[5:]
         dict_ = {}
@@ -178,6 +182,7 @@ class Website:
 
             # print(body_split)
         
+
     def execute(self):
         self.links_overview()
         self.top_news(text=True)
@@ -190,12 +195,13 @@ class Selenium(webdriver.Chrome):
     
     def __init__(self, driver= selector.DRIVER,) -> None:
         super(Selenium, self).__init__()
+
         self.driver = driver
         self.implicitly_wait(20)
         self.maximize_window()
         self.action = ActionChains(driver)
-    
-    
+
+
     def find_page(self, givenUrl:str) -> None:
         self.get(givenUrl)
         self.get_network_conditions
@@ -231,7 +237,7 @@ class SaveConvention(object):
             yield
         finally:
             os.chdir(origin)
-            
+   
     def save_csv(self, data, fileName:str, transpose:bool=False):
         with self.changeDir(self.path1):
             if transpose: 
@@ -240,7 +246,6 @@ class SaveConvention(object):
             else:
                 dataFrame = pd.DataFrame(data)
                 dataFrame.to_csv(f'{fileName}.csv')
-            
 
     def save_text(self, data, changeInData:bool=False)-> None:
         with self.changeDir(self.path1):
