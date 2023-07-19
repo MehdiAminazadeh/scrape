@@ -125,20 +125,6 @@ class Website:
         try:
             for link in links:
 
-                    self.selenium.find_page(link)
-                    world = self.selenium.find_elements(
-                        By.XPATH, selector.LI_RIBBON
-                        )[0]
-                    world.click()
-                    ribbon = self.selenium.find_elements(By.XPATH, selector.TH_RIBBON)
-                    values = [value.text for value
-                            in self.selenium.find_elements(
-                                By.XPATH, selector.TR_VALUE
-                            )]
-                    if len(ribbon) > 5:
-                        continue
-                        # self.markets()
-
                 self.selenium.find_page(link)
                 world = self.selenium.find_elements(
                     By.XPATH, selector.LI_RIBBON
@@ -149,34 +135,33 @@ class Website:
                         in self.selenium.find_elements(
                             By.XPATH, selector.TR_VALUE
                         )]
-                
-               if len(ribbon) > 5:
+                if len(ribbon) > 5:
+                    continue
+
+                for value in values:
+                    lst = value.split()
+                    if len(lst) < 2:
                         continue
 
-                    for value in values:
-                        lst = value.split()
-                        if len(lst) < 2:
-                            continue
-                        else:
-                            while len(lst) > 5:
-                                lst[0] += ' ' + lst[1]
-                                lst.pop(1)
-                                
-                        title = self.selenium.find_element(
-                        By.XPATH, selector.TITLE
-                        ).text.replace(' | World', '')
-                        
-                        foundElements[lst[0]].update(
-                        {
-                            title:lst[1],
-                            # ribbon[4].text + f'_{title}': lst[4]
-                        }
-                        )
-                    self.saving.save_csv(foundElements, 'indicators', transpose=True)
+                    else:
+                        while len(lst) > 5:
+                            lst[0] += ' ' + lst[1]
+                            lst.pop(1)
+                            
+                    title = self.selenium.find_element(
+                    By.XPATH, selector.TITLE
+                    ).text.replace(' | World', '')
+                    
+                    foundElements[lst[0]].update(
+                    {
+                        title:lst[1],
+                        # ribbon[4].text + f'_{title}': lst[4]
+                    }
+                    )
+                self.saving.save_csv(foundElements, 'indicators', transpose=True)
         except IndexError:
             pass
 
-            # self.saving.save_csv(foundElements, 'indicators', transpose=True)
 
     def markets(self):
         self.selenium.find_page(self.mainUrl)
@@ -195,43 +180,33 @@ class Website:
             head_split = re.split('\n', head.text)
             body_split = re.split('\n', body.text)
 
-            print(body_split)
-            
+            # print(body_split)
+        
+
     def execute(self):
         self.links_overview()
         self.top_news(text=True)
         self.extract_allnews()
         self.main_indicators()
-
+        self.markets()
         
 class Selenium(webdriver.Chrome):
     """Initiating chrome driver"""
+    
+    def __init__(self, driver= selector.DRIVER,) -> None:
+        super(Selenium, self).__init__()
 
-    def __init__(self, 
-                 driver= selector.DRIVER,
-                 off = False
-                 ) -> None:
-        option = webdriver.ChromeOptions()
-        option.add_experimental_option('excludeSwitches', ['enable-logging'])
-        super(Selenium, self).__init__(options=option)
-        self.off = off
         self.driver = driver
         self.implicitly_wait(20)
         self.maximize_window()
         self.action = ActionChains(driver)
-    
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        if self.off:
-            self.quit()
-        
+
+
     def find_page(self, givenUrl:str) -> None:
-        try:
-            self.get(givenUrl)
-            self.get_network_conditions
-        except Exception as e:
-            print('---------', e)
-
-
+        self.get(givenUrl)
+        self.get_network_conditions
+        
+        
     def scroll(self, limit:int, pause:int=2) -> None:
         scroll_count = 0
         prev_height = self.execute_script(selector.PAGE_HEIGHT)
@@ -262,9 +237,8 @@ class SaveConvention(object):
             yield
         finally:
             os.chdir(origin)
-
-    
-    def saveCsv(self, data, fileName:str, transpose:bool=False):
+   
+    def save_csv(self, data, fileName:str, transpose:bool=False):
         with self.changeDir(self.path1):
             if transpose: 
                 dataFrame = pd.DataFrame(data).T
@@ -272,10 +246,8 @@ class SaveConvention(object):
             else:
                 dataFrame = pd.DataFrame(data)
                 dataFrame.to_csv(f'{fileName}.csv')
-                
 
-    def saveText(self, data, changeInData:bool=False):
-
+    def save_text(self, data, changeInData:bool=False)-> None:
         with self.changeDir(self.path1):
             if changeInData:
                 with open('data.txt', 'r') as textRead:
@@ -287,7 +259,6 @@ class SaveConvention(object):
                 with open('data.txt', 'w') as text:
                     string = '\n'.join(data)
                     text.write(string)
-
 
 if __name__ == '__main__':
     instance = Website()
