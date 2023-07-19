@@ -5,7 +5,6 @@ import os
 import json
 
 from bs4 import BeautifulSoup
-
 from collections import defaultdict
 from contextlib import contextmanager
 from time import ctime, sleep
@@ -15,11 +14,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 from requests.exceptions import ConnectionError
 from pathlib import Path
 
-import pandas as pd
-from sklearn.cluster import KMeans
-import matplotlib.pyplot as plt
-# import seaborn as sns
-# import pygal
+
 from selectors import selector
 
 logging.basicConfig(filename='log.log', level=logging.DEBUG)
@@ -39,7 +34,7 @@ class Website:
         except ConnectionError as ce: 
             return f'{ce} enable vpn'
     
-    def Links_Overview(self):
+    def links_overview(self):
         dict1 = defaultdict(dict)
         dict2 = {}
         ribbonLst = []
@@ -59,18 +54,19 @@ class Website:
                             dict2[anchor['href']] = anchor.text.strip()
                             for key, value in dict2.items():
                                 if key.startswith(f'/{country}/'):
-                                    dict1[country].update({key.replace(f'/{country}/', ''):value}) 
+                                    dict1[country].update({key.replace(f'/{country}/', ''):value})
             for rib in ribbon:
                 ribbonLst.append(self.mainUrl + rib)
                 
         except AttributeError:
-            print('Problem with the internet')   
+            print('Problem with the internet')
         
         finally:   
             self.countryDict = dict1
             self.ribbon = ribbonLst
-        
-    def extractAllNews(self):
+            self.saving.save_csv(self.countryDict, 'Overview')
+            
+    def extract_allnews(self):
         newsDict = defaultdict(dict)
         self.selenium.find_page(self.ribbon[1])
         self.selenium.scroll(5)
@@ -81,15 +77,16 @@ class Website:
                 newsDict[head.text].update({
                     'News': new.text.replace('\n', ',')
                 })
-        if 'News.json' in os.listdir(self.saving.path1):
+        if 'News.json'.lower() in os.listdir(self.saving.path1):
             print('Already available')
             
         else:
-            file = open('News.json', mode='w')
-            json.dump(newsDict, file)
-            file.close()
+            with self.saving.changeDir(self.saving.path1):
+                file = open('News.json', mode='w')
+                json.dump(newsDict, file)
+                file.close()
         
-    def topNews(self, text=False):
+    def top_news(self, text=False):
         topNews = []
         page = self.makeSoup(self.mainUrl)
         news = page.find('div', class_='col-md-8')
@@ -109,17 +106,14 @@ class Website:
                     if lineOne[1] == topNews[1]:
                         print('Top News are Up to dated!')
                     else:
-                        self.saving.saveText(topNews,changeInData=True)
+                        self.saving.save_text(topNews,changeInData=True)
             except FileNotFoundError:
                 print('file not found, saving initial text file')
-                self.saving.saveText(topNews)
+                self.saving.save_text(topNews)
         else:
-            self.saving.saveCsv(topNews)
-            
-    def moreIndicators(self):
-        pass
+            self.saving.save_csv(topNews)
         
-    def mainIndicators(self):
+    def main_indicators(self):
         self.selenium.find_page(self.ribbon[-2])
         indicatorHref = self.selenium.find_elements(
             By.XPATH, selector.INDICATOR_LINKS
@@ -128,73 +122,92 @@ class Website:
         foundElements = defaultdict(dict)
         try:
             for link in links:
-                self.selenium.find_page(link)
-                world = self.selenium.find_elements(
-                    By.XPATH, selector.LI_RIBBON
-                    )[0]
-                world.click()
-                ribbon = self.selenium.find_elements(By.XPATH, selector.TH_RIBBON)
-                values = [value.text for value
-                        in self.selenium.find_elements(
-                            By.XPATH, selector.TR_VALUE
-                        )]
-                
-                for val in values:
-                    lst = val.split()
-                    while len(lst) > 5:
-                        lst[0] += ' ' + lst[1]
-                        lst.pop(1)
-
-                    foundElements[lst[0]].update(
-                    {
-                        ribbon[1].text:lst[1],
-                        ribbon[2].text:lst[2],
-                        ribbon[3].text:lst[3],
-                        ribbon[4].text:lst[4],
-                    }
-                    )  
-                title = self.selenium.find_element(
-                    By.XPATH, selector.TITLE
-                    ).text.replace(' | World', '')
-                self.saving.saveCsv(foundElements, title, transpose=True)
+                    self.selenium.find_page(link)
+                    world = self.selenium.find_elements(
+                        By.XPATH, selector.LI_RIBBON
+                        )[0]
+                    world.click()
+                    ribbon = self.selenium.find_elements(By.XPATH, selector.TH_RIBBON)
+                    values = [value.text for value
+                            in self.selenium.find_elements(
+                                By.XPATH, selector.TR_VALUE
+                            )]
+                    if len(ribbon) > 5:
+                        continue
+                        # self.markets()
+                    for value in values:
+                        lst = value.split()
+                        if len(lst) < 2:
+                            continue
+                        else:
+                            while len(lst) > 5:
+                                lst[0] += ' ' + lst[1]
+                                lst.pop(1)
+                                
+                        title = self.selenium.find_element(
+                        By.XPATH, selector.TITLE
+                        ).text.replace(' | World', '')
+                        
+                        foundElements[lst[0]].update(
+                        {
+                            title:lst[1],
+                            # ribbon[4].text + f'_{title}': lst[4]
+                        }
+                        )
+                    self.saving.save_csv(foundElements, 'indicators', transpose=True)
         except IndexError:
             pass
-            to_click = self.selenium.find_elements(By.XPATH, selector.LI_RIBBON)
-            to_click[0].click()
-            ribbon = self.selenium.find_elements(By.XPATH, selector.TR_VALUE)
-            for rib in ribbon:
-                print(rib.text)
-    
+            # self.saving.save_csv(foundElements, 'indicators', transpose=True)
+            
     def markets(self):
-        linksToScrape = []
-        self.selenium.find_page(self.ribbon[1])
-
-        links = self.selenium.find_elements(By.XPATH, selector.MARKETS)
-        for link in links:
-            fullLink = self.ribbon[1] + link.get_attribute('href')
-            linksToScrape.append(fullLink)
-        
+        self.selenium.find_page(self.mainUrl)
+        links = [link.get_attribute('href')
+                 for link in self.selenium.find_elements(By.XPATH, selector.MARKET)] 
+        part_one = links[:5]
+        part_two = links[5:]
+        dict_ = {}
+        for link in part_one:
+            self.selenium.find_page(link)
+        tbody, thead = (self.selenium.find_elements(By.XPATH, '//tbody'),
+                            self.selenium.find_elements(By.XPATH, '//thead'))
+    
+        for head, body in zip(thead, tbody):
+            head_split = re.split('\n', head.text)
+            body_split = re.split('\n', body.text)
+            print(body_split)
+            
     def execute(self):
-        self.Links_Overview()
-        self.topNews(text=True)
-        self.extractAllNews()
-        self.mainIndicators()
+        self.links_overview()
+        self.top_news(text=True)
+        self.extract_allnews()
+        self.main_indicators()
         self.markets()
         
 class Selenium(webdriver.Chrome):
     """Initiating chrome driver"""
     def __init__(self, 
-                 driver= selector.DRIVER
+                 driver= selector.DRIVER,
+                 off = False
                  ) -> None:
-        super(Selenium, self).__init__()
+        option = webdriver.ChromeOptions()
+        option.add_experimental_option('excludeSwitches', ['enable-logging'])
+        super(Selenium, self).__init__(options=option)
+        self.off = off
         self.driver = driver
         self.implicitly_wait(20)
         self.maximize_window()
         self.action = ActionChains(driver)
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if self.off:
+            self.quit()
         
-    def find_page(self, givenUrl):
-        self.get(givenUrl)
-        print(self.get_network_conditions)
+    def find_page(self, givenUrl:str) -> None:
+        try:
+            self.get(givenUrl)
+            self.get_network_conditions
+        except Exception as e:
+            print('---------', e)
         
     def scroll(self, limit:int, pause:int=2) -> None:
         scroll_count = 0
@@ -207,9 +220,6 @@ class Selenium(webdriver.Chrome):
                 break
             prev_height = new_height
             scroll_count += 1
-            
-    def actionChain(self):
-        pass
         
 class SaveConvention(object):
     def __init__(self) -> None:
@@ -229,8 +239,8 @@ class SaveConvention(object):
         finally:
             os.chdir(origin)
             
-    def saveCsv(self, data, fileName:str, transpose:bool=False):
-        with self.changeDir(self.path):
+    def save_csv(self, data, fileName:str='', transpose:bool=False) -> None:
+        with self.changeDir(self.path1):
             if transpose: 
                 dataFrame = pd.DataFrame(data).T
                 dataFrame.to_csv(f'{fileName}.csv')
@@ -238,8 +248,8 @@ class SaveConvention(object):
                 dataFrame = pd.DataFrame(data)
                 dataFrame.to_csv(f'{fileName}.csv')
             
-    def saveText(self, data, changeInData:bool=False):
-        with self.changeDir(self.path):
+    def save_text(self, data, changeInData:bool=False)-> None:
+        with self.changeDir(self.path1):
             if changeInData:
                 with open('data.txt', 'r') as textRead:
                     with open('data.txt', 'w') as textWrite:
@@ -250,65 +260,5 @@ class SaveConvention(object):
                 with open('data.txt', 'w') as text:
                     string = '\n'.join(data)
                     text.write(string)
-# inst1 = Website()
-# inst1.execute()
-
-class Analyze(SaveConvention):
-    
-    """This class stores values taken from scraped 
-    files and does various analysis on them"""
-    def __init__(self,csvFile:list, jsonFile:list, textFile:list) -> None:
-        super().__init__()
-        self.csvFile = csvFile
-        self.json = jsonFile
-        self.text = textFile
-        
-    def nlp_nlu_news(self, givenFile=''):
-        if givenFile and givenFile.endswith('.txt'):
-            pass
-        else:
-            # json 
-            print('file extension is incorrect')
-    def nlp_nlu_rankings(self):
-        pass
-    
-    def scatter_Plot(self):
-        pass
-    
-    def bar_Plot(self, barh=False):
-        if barh:
-            pass
-        pass
-    
-    def heatmap(self):
-        pass
-    
-    def elbow_method(self, data, knum=10):
-        pass
-        
-    def cluster(self, cluster):
-        combined = self.combine_files('', '')
-        pass
-           
-    def Highest_lowest_ranks(self, rateFile):
-        pass
-    
-    def combine_files(self, first, second):
-        with self.changeDir(path=self.path1):
-            pass
-    
-    def save_result(self, *args, typeSave):
-        typesAllowed = ['.jpg', '.png', '.jpeg']
-        with self.changeDir(self.path2):
-            for element in args:
-                if typeSave in typesAllowed:
-                    plt.savefig(f'{element}.{typeSave}')
-                    print(f'{element}.{typeSave} stored in {self.path2}')
-                else:
-                    return
-                
-    def rates_on_map(self, rate):
-        pass
-    
-a = Analyze(['Inflation Rate.csv'])
-a.scatter()
+inst1 = Website()
+inst1.execute()
