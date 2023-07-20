@@ -1,5 +1,5 @@
 class selector:
-    USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36"
+    USER_AGENT = "Mozilla/5.0 .36"
     DRIVER = r'C:\Driver\Chromedriver.exe'
     INDICATOR_LINKS = "//div[@class='col-md-3 col-sm-4 col-xs-12']//ul[@class='list-unstyled']//li[@class='list-group-item']//a"
     NEWS = "//ul[@class='list-group']//li"
