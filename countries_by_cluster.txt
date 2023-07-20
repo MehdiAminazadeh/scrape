@@ -1,0 +1,200 @@
+Cluster 0:
+Namibia
+Botswana
+Hong Kong
+Poland
+Mauritius
+Dominican Republic
+Bahrain
+Senegal
+Qatar
+Ukraine
+Ecuador
+Paraguay
+China
+Luxembourg
+United States
+Brazil
+India
+Kenya
+Thailand
+Portugal
+Albania
+Colombia
+Croatia
+Moldova
+Philippines
+Bosnia and Herzegovina
+Jamaica
+Mexico
+Malaysia
+Canada
+Chile
+Cyprus
+Tunisia
+Israel
+Cape Verde
+El Salvador
+Japan
+Denmark
+Italy
+Latvia
+Slovenia
+Spain
+Sweden
+Belgium
+Bulgaria
+South Africa
+Costa Rica
+Iceland
+Slovakia
+South Korea
+Switzerland
+Australia
+Finland
+France
+Norway
+Romania
+European Union
+United Kingdom
+Austria
+Belize
+Czech Republic
+Euro Area
+Greece
+New Zealand
+Honduras
+Serbia
+Germany
+Hungary
+Netherlands
+Singapore
+Malta
+Rwanda
+Taiwan
+Estonia
+Uganda
+Indonesia
+Angola
+Saudi Arabia
+Lesotho
+Lithuania
+Trinidad And Tobago
+Ireland
+Peru
+Fiji
+Cambodia
+Barbados
+Seychelles
+Algeria
+Libya
+Morocco
+Comoros
+Bolivia
+Papua New Guinea
+Trinidad and Tobago
+Bahamas
+Iraq
+Kuwait
+New Caledonia
+Vietnam
+Benin
+Burkina Faso
+Cameroon
+Central African Republic
+Chad
+Equatorial Guinea
+Gabon
+Guatemala
+Guinea Bissau
+Guyana
+Ivory Coast
+Mali
+Niger
+Republic of the Congo
+Tanzania
+Togo
+United Arab Emirates
+Brunei
+Macau
+Oman
+Bangladesh
+Macedonia
+Bhutan
+Maldives
+Myanmar
+Jordan
+Swaziland
+Nepal
+Russia
+Mauritania
+Azerbaijan
+Belarus
+Madagascar
+Zambia
+Sao Tome and Principe
+Tajikistan
+Nicaragua
+Armenia
+Georgia
+Uruguay
+Sri Lanka
+Guinea
+South Sudan
+Kyrgyzstan
+Mongolia
+Uzbekistan
+Gambia
+Kazakhstan
+Mozambique
+Liberia
+
+Cluster 1:
+Afghanistan
+Panama
+Djibouti
+Liechtenstein
+Puerto Rico
+Palestine
+Aruba
+Bermuda
+Kosovo
+Cayman Islands
+Somalia
+East Timor
+Eritrea
+Faroe Islands
+Montenegro
+Solomon Islands
+Vanuatu
+Turkmenistan
+
+Cluster 2:
+Lebanon
+Venezuela
+
+Cluster 3:
+Argentina
+Zimbabwe
+Syria
+North Korea
+Yemen
+
+Cluster 4:
+Ghana
+Turkey
+Nigeria
+Cuba
+Ethiopia
+Laos
+Burundi
+Congo
+Suriname
+Haiti
+Iran
+Egypt
+Sierra Leone
+Malawi
+Pakistan
+Sudan
+
