@@ -161,11 +161,17 @@ class Website:
                 if len(ribbon) > 5:
                     continue
 
+                # Splitting strings
                 for value in values:
                     lst = value.split()
                     if len(lst) < 2:
                         continue
-
+                """ Assemble name of the countries which their syllables are more than 1 word 
+                    Lack of unity for name of the countries with more than 1 syllable would cause 
+                    the scraper into trouble:
+                    1- IndexError
+                    2- Messy data gathering
+                    3- Tag not found error(Returns None)"""
                     else:
                         while len(lst) > 5:
                             lst[0] += ' ' + lst[1]
