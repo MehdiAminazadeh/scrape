@@ -18,20 +18,28 @@ from selectors import selector
 
 logging.basicConfig(filename='log.log', level=logging.DEBUG)
 
+# Website =====> https://tradingeconomics.com
 class Website:
+    """--Initiating the scraper by the main URL
+       --Initiating Selenium 
+       --Saving conventions include Text, CSV and Json formats"""
+       
     def __init__(self) -> None:
         self.mainUrl = 'https://tradingeconomics.com/'
         self.selenium = Selenium()
         self.saving = SaveConvention()
         
+    # For creating soup object 
     def makeSoup(self, givenUrl):
         try:
             req = requests.get(givenUrl, headers={'User-Agent':selector.USER_AGENT})
             return BeautifulSoup(req.content, features='html.parser')
         
+        # Connection error mainly refers to vpn
         except ConnectionError as ce: 
             return f'{ce} enable vpn'
     
+    # Extracing links of the first page
     def links_overview(self):
         dict1 = defaultdict(dict)
         dict2 = {}
@@ -44,6 +52,7 @@ class Website:
                   'indicators', 'countries',]
         page = self.makeSoup(self.mainUrl)
         
+        # Extracting the first table appears on the first page
         try:
             for anchor in page.findAll('a', href=True):
                 for country in countries:
@@ -56,21 +65,25 @@ class Website:
             for rib in ribbon:
                 ribbonLst.append(self.mainUrl + rib)
                 
+        # Attribute error => mainly Internet
         except AttributeError:
             print('Problem with the internet')
         
+        # Saving ribbon object => Ribbon above the first page 
+        # Extracting different components of the ribbon
         finally:   
             self.countryDict = dict1
             self.ribbon = ribbonLst
             self.saving.save_csv(self.countryDict, 'Overview')
-            
-    def extract_allnews(self):
+    
+    # Extracting desired amount of news for further analysis
+    def extract_allnews(self, scroll:int=5):
         newsDict = defaultdict(dict)
         self.selenium.find_page(self.ribbon[1])
-        self.selenium.scroll(5)
+        self.selenium.scroll(scroll)
+        
         news = self.selenium.find_elements(By.XPATH,selector.NEWS)
         header = self.selenium.find_elements(By.XPATH, selector.HEADER)
-        
         for new, head in zip(news, header):
             if len(new.text) > len(head.text):
                 newsDict[head.text].update({
@@ -78,19 +91,21 @@ class Website:
                 })
         if 'News.json' in os.listdir(self.saving.path1):
             print('Already available')
-            
+        
         else:
             with self.saving.changeDir(self.saving.path1):
                 file = open('News.json', mode='w')
                 json.dump(newsDict, file)
                 file.close()
-        
+    
+    # Extracting news appearing on the first page
     def top_news(self, text=False):
         topNews = []
         page = self.makeSoup(self.mainUrl)
         news = page.find('div', class_='col-md-8')
         regex = re.compile(r'\d+\s(min(s)?|hour(s)|day(s))\sago')
         newsSub = re.sub(regex,'', news.text.strip())
+        # messy with spaces
         split = newsSub.split('\n')
         
         for string in split:
@@ -100,6 +115,7 @@ class Website:
                 topNews.append(string)
         topNews.insert(0, ctime())
         
+        # text argument is called, news will be stored in a txt file
         if text:
             try:
                 with open('data.txt', 'r') as text:
@@ -107,13 +123,16 @@ class Website:
                     if lineOne[1] == topNews[1]:
                         print('Top News are Updated!')
                     else:
+                        # insert updated news to the last news
                         self.saving.save_text(topNews,changeInData=True)
             except FileNotFoundError:
                 print('file not found, saving initial text file')
                 self.saving.save_text(topNews)
+        # save news in csv file
         else:
             self.saving.save_csv(topNews)
         
+    # Extracing main economic indicators of countries
     def main_indicators(self):
         self.selenium.find_page(self.ribbon[-2])
         indicatorHref = self.selenium.find_elements(
@@ -124,17 +143,21 @@ class Website:
         
         try:
             for link in links:
-
                 self.selenium.find_page(link)
                 world = self.selenium.find_elements(
                     By.XPATH, selector.LI_RIBBON
                     )[0]
+                
+                # click on the world button in order to extract all countries
                 world.click()
                 ribbon = self.selenium.find_elements(By.XPATH, selector.TH_RIBBON)
                 values = [value.text for value
                         in self.selenium.find_elements(
                             By.XPATH, selector.TR_VALUE
                         )]
+                # discarding unnecessary pages appeared on the scrape based on the common length of the ribbon above the rates
+                # world  |    Last     |    Previous   |   Reference     |    Unit
+                # Extracting the column named Last with the name of the country
                 if len(ribbon) > 5:
                     continue
 
@@ -155,34 +178,49 @@ class Website:
                     foundElements[lst[0]].update(
                     {
                         title:lst[1],
+                        # adding unit to the indactors.csv
                         # ribbon[4].text + f'_{title}': lst[4]
                     }
                     )
+                
                 self.saving.save_csv(foundElements, 'indicators', transpose=True)
+        
+        # Bypass index Error
         except IndexError:
             pass
 
-
+    # Extracting values of the markets ribbon
     def markets(self):
         self.selenium.find_page(self.mainUrl)
         links = [link.get_attribute('href')
                  for link in self.selenium.find_elements(By.XPATH, selector.MARKET)] 
         
+        # Dividing links into 2 parts
+        # 1- main 
+        # 2- peripherals
         part_one = links[:5]
         part_two = links[5:]
-        dict_ = {}
+        
+        # finding elements based on head and body of tables
         for link in part_one:
             self.selenium.find_page(link)
-        tbody, thead = (self.selenium.find_elements(By.XPATH, '//tbody'),
+            tbody, thead = (self.selenium.find_elements(By.XPATH, '//tbody'),
                             self.selenium.find_elements(By.XPATH, '//thead'))
-    
-        for head, body in zip(thead, tbody):
-            head_split = re.split('\n', head.text)
-            body_split = re.split('\n', body.text)
-
-            # print(body_split)
         
-
+            for head, body in zip(thead, tbody):
+                head_split = re.split('\n', head.text)
+                body_split = re.split('\n', body.text)
+                head_split = [space.split(' ') for space in head_split]
+                body_split = [space.split(' ') for space in body_split]
+                
+                for head in head_split:
+                    body_split.insert(0, head)
+                    
+                # Saving into various csv files based on the table names
+                for _ in range(len(head_split)):
+                    self.saving.save_csv(data=body_split, fileName=f'{body_split[0][0]}')
+                
+    # create an Instance of the method and run the program
     def execute(self):
         self.links_overview()
         self.top_news(text=True)
@@ -191,22 +229,22 @@ class Website:
         self.markets()
         
 class Selenium(webdriver.Chrome):
-    """Initiating chrome driver"""
+    """Initiating chrome driver
+       Us"""
     
     def __init__(self, driver= selector.DRIVER,) -> None:
         super(Selenium, self).__init__()
-
         self.driver = driver
         self.implicitly_wait(20)
         self.maximize_window()
         self.action = ActionChains(driver)
 
-
+    # Selenium get method
     def find_page(self, givenUrl:str) -> None:
         self.get(givenUrl)
         self.get_network_conditions
         
-        
+    # Scroll method 
     def scroll(self, limit:int, pause:int=2) -> None:
         scroll_count = 0
         prev_height = self.execute_script(selector.PAGE_HEIGHT)
@@ -222,8 +260,9 @@ class Selenium(webdriver.Chrome):
         
 class SaveConvention(object):
     def __init__(self) -> None:
-        #hard coded paths 
+        # Saving the results into the result directory
         self.path1 = os.path.join(os.path.dirname(__file__), 'result')
+        # Saving matplotlib figures
         self.path2 = os.path.join(os.path.dirname(__file__), 'pltFigs') 
     
     def __repr__(self) -> str:
@@ -263,3 +302,4 @@ class SaveConvention(object):
 if __name__ == '__main__':
     instance = Website()
     instance.execute()
+
